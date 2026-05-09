@@ -5,6 +5,24 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import I18nProvider from "@/components/I18nProvider";
 
+// Adsterra ad script (popunder + banner)
+const AdScript = () => (
+  <script
+    dangerouslySetInnerHTML={{
+      __html: `
+        var AdBlock = window.AdBlock || [];
+        AdBlock.push({publisher:"YOUR_PUBLISHER_ID",placement:"0",advert:"0",type:"0",category:"0",country:"0",os:"0",browser:"0",screen:"0",lang:"0",device:"0"});
+        (function() {
+          var s = document.createElement('script');
+          s.src = 'https://ads.adsterra.com/ad?id=YOUR_PUBLISHER_ID';
+          s.async = true;
+          document.head.appendChild(s);
+        })();
+      `,
+    }}
+  />
+);
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -56,6 +74,7 @@ export default function RootLayout({
   return (
     <html lang={initialLocale === 'zh' ? 'zh-CN' : 'en'} className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-black">
+        <AdScript />
         <I18nProvider initialLocale={initialLocale}>
           <Header />
           <main className="flex-grow">{children}</main>
