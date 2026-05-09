@@ -7,7 +7,7 @@ import I18nProvider from "@/components/I18nProvider";
 
 // Adsterra ad script (popunder + banner) — Anti-Adblock JS Sync
 const AdScript = () => (
-  <script src="https://pl29386879.profitablecpmratenetwork.com/f2/3b/3e/f23b3efd5343b1c94b5bdbc6f53baf2a.js" />
+  <script src="https://pl29386878.profitablecpmratenetwork.com/cc/13/ca/cc13caf9a100abb46322410fc15634c2.js" />
 );
 
 const geistSans = Geist({
