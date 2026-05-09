@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
 import ToolCard from "@/components/ToolCard";
 import CategoryGrid from "@/components/CategoryGrid";
@@ -17,9 +18,10 @@ interface CategoryItem {
 interface HomePageClientProps {
   tools: DbTool[];
   categories: CategoryItem[];
+  trendingTools?: DbTool[];
 }
 
-export default function HomePageClient({ tools, categories }: HomePageClientProps) {
+export default function HomePageClient({ tools, categories, trendingTools }: HomePageClientProps) {
   const { t } = useI18n();
 
   return (
@@ -39,6 +41,26 @@ export default function HomePageClient({ tools, categories }: HomePageClientProp
           <SearchBar />
         </div>
       </section>
+
+      {/* Trending section — embedded from hot page */}
+      {trendingTools && trendingTools.length > 0 && (
+        <section className="mb-12" id="trending">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-2xl">
+              {t('trendingNow')}
+            </h2>
+            <Link href="/hot" className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400">
+              {t('viewAllTrending')}
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {trendingTools.map((tool) => (
+              <ToolCard key={tool.id} tool={tool} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Featured tools section */}
       {tools.length > 0 && (

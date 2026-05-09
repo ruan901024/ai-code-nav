@@ -33,8 +33,11 @@ export function getDb(): DB {
         description TEXT DEFAULT '',
         url TEXT NOT NULL UNIQUE,
         category TEXT DEFAULT 'other',
+        source TEXT DEFAULT 'github',
         stars INTEGER DEFAULT 0,
         forks INTEGER DEFAULT 0,
+        downloads INTEGER DEFAULT 0,
+        likes INTEGER DEFAULT 0,
         language TEXT,
         tags TEXT DEFAULT '[]',
         is_premium INTEGER DEFAULT 0,
@@ -52,7 +55,20 @@ export function getDb(): DB {
       CREATE INDEX IF NOT EXISTS idx_tools_category ON tools(category);
       CREATE INDEX IF NOT EXISTS idx_tools_stars ON tools(stars DESC);
       CREATE INDEX IF NOT EXISTS idx_tools_name ON tools(name);
+      CREATE INDEX IF NOT EXISTS idx_tools_source ON tools(source);
     `);
+
+    // Migration: add new columns if they don't exist (for existing databases)
+    const migrate = (sql: string) => {
+      try {
+        db!.exec(sql);
+      } catch (e) {
+        // ignore duplicate column errors
+      }
+    };
+    migrate(`ALTER TABLE tools ADD COLUMN source TEXT DEFAULT 'github'`);
+    migrate(`ALTER TABLE tools ADD COLUMN downloads INTEGER DEFAULT 0`);
+    migrate(`ALTER TABLE tools ADD COLUMN likes INTEGER DEFAULT 0`);
 
     // Seed default categories if empty
     const count = db.prepare('SELECT COUNT(*) as count FROM categories').get();
@@ -84,8 +100,11 @@ export interface DbTool {
   description: string;
   url: string;
   category: string;
+  source: 'github' | 'huggingface' | 'hackernews' | 'producthunt';
   stars: number;
   forks: number;
+  downloads: number;
+  likes: number;
   language: string | null;
   tags: string[];
   isPremium: boolean;
@@ -112,8 +131,11 @@ export const toolDb = {
       description: row.description,
       url: row.url,
       category: row.category,
+      source: row.source || 'github',
       stars: row.stars,
       forks: row.forks,
+      downloads: row.downloads ?? 0,
+      likes: row.likes ?? 0,
       language: row.language,
       tags: JSON.parse(row.tags || '[]'),
       isPremium: !!row.is_premium,
@@ -132,8 +154,11 @@ export const toolDb = {
       description: row.description,
       url: row.url,
       category: row.category,
+      source: row.source || 'github',
       stars: row.stars,
       forks: row.forks,
+      downloads: row.downloads ?? 0,
+      likes: row.likes ?? 0,
       language: row.language,
       tags: JSON.parse(row.tags || '[]'),
       isPremium: !!row.is_premium,
@@ -152,8 +177,11 @@ export const toolDb = {
       description: row.description,
       url: row.url,
       category: row.category,
+      source: row.source || 'github',
       stars: row.stars,
       forks: row.forks,
+      downloads: row.downloads ?? 0,
+      likes: row.likes ?? 0,
       language: row.language,
       tags: JSON.parse(row.tags || '[]'),
       isPremium: !!row.is_premium,
@@ -165,8 +193,8 @@ export const toolDb = {
   upsert(tool: Omit<DbTool, 'createdAt' | 'updatedAt'>): void {
     const stmt = getDb().prepare(`
       INSERT OR REPLACE INTO tools 
-      (id, name, description, url, category, stars, forks, language, tags, is_premium)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (id, name, description, url, category, source, stars, forks, downloads, likes, language, tags, is_premium)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     stmt.run(
       tool.id,
@@ -174,8 +202,11 @@ export const toolDb = {
       tool.description,
       tool.url,
       tool.category,
+      tool.source || 'github',
       tool.stars,
       tool.forks,
+      tool.downloads ?? 0,
+      tool.likes ?? 0,
       tool.language || null,
       JSON.stringify(tool.tags),
       tool.isPremium ? 1 : 0

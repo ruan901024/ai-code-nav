@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/scrape",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/scrape-hf",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/scrape-hot",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

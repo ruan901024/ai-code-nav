@@ -11,6 +11,7 @@ export const translations: Record<Locale, Record<string, string | ((...args: unk
     home: '首页',
     categories: '分类',
     search: '搜索',
+    hot: '热点',
     premium: 'Premium',
     
     // Hero section
@@ -29,6 +30,18 @@ export const translations: Record<Locale, Record<string, string | ((...args: unk
     // Sections
     hotTools: '🔥 热门工具',
     toolCategories: '📂 工具分类',
+    trendingNow: '📈 当前热点',
+    viewAllTrending: '查看所有热点 →',
+    
+    // Hot page
+    hotPageTitle: 'AI 热点追踪',
+    hotPageSubtitle: '来自 Hacker News、Product Hunt 和 GitHub Trending 的最新 AI 动态。',
+    sourceFilter: '来源筛选',
+    hackerNews: 'Hacker News',
+    productHunt: 'Product Hunt',
+    githubTrending: 'GitHub Trending',
+    huggingface: 'HuggingFace',
+    allSources: '全部来源',
     
     // Category count
     toolsCount: (...args: unknown[]) => `${Number(args[0])} 个工具`,
@@ -49,6 +62,7 @@ export const translations: Record<Locale, Record<string, string | ((...args: unk
     home: 'Home',
     categories: 'Categories',
     search: 'Search',
+    hot: 'Trending',
     premium: 'Premium',
     
     // Hero section
@@ -67,6 +81,18 @@ export const translations: Record<Locale, Record<string, string | ((...args: unk
     // Sections
     hotTools: '🔥 Hot Tools',
     toolCategories: '📂 Categories',
+    trendingNow: '📈 Trending Now',
+    viewAllTrending: 'View all trending →',
+    
+    // Hot page
+    hotPageTitle: 'AI Trending Tracker',
+    hotPageSubtitle: 'Latest AI trends from Hacker News, Product Hunt, and GitHub Trending.',
+    sourceFilter: 'Source Filter',
+    hackerNews: 'Hacker News',
+    productHunt: 'Product Hunt',
+    githubTrending: 'GitHub Trending',
+    huggingface: 'HuggingFace',
+    allSources: 'All Sources',
     
     // Category count
     toolsCount: (...args: unknown[]) => `${Number(args[0])} tools`,

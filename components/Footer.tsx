@@ -27,6 +27,10 @@ export default function Footer() {
           <Link href="/search" className="hover:underline hover:text-zinc-900 dark:hover:text-zinc-50">
             {t('search')}
           </Link>
+          <span className="text-zinc-300 dark:text-zinc-700">·</span>
+          <Link href="/hot" className="hover:underline hover:text-zinc-900 dark:hover:text-zinc-50">
+            {t('hot')}
+          </Link>
         </nav>
       </div>
     </footer>

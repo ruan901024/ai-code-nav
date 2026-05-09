@@ -26,5 +26,8 @@ export default function HomePage() {
     toolCount: toolDb.countByCategory(cat.id),
   }));
 
-  return <HomePageClient tools={tools} categories={categories} />;
+  // Fetch trending tools (top by stars) for the embedded section
+  const trendingTools = toolDb.getAll(8, 0);
+
+  return <HomePageClient tools={tools} categories={categories} trendingTools={trendingTools} />;
 }
