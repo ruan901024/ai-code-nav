@@ -12,8 +12,7 @@ interface CategoryPageClientProps {
 }
 
 export default function CategoryPageClient({ categoryId, tools, category }: CategoryPageClientProps) {
-  const { t, cat } = useI18n();
-  
+  const { t, cat, locale } = useI18n();
   // Get translated category info
   const translatedCat = cat(categoryId);
 

@@ -19,19 +19,19 @@ export const translations: Record<Locale, Record<string, string | ((...args: unk
     
     // Search
     searchPlaceholder: '搜索 AI 工具...',
-    searchResultsFor: (query: string) => `搜索 "${query}" 的结果`,
+    searchResultsFor: (...args: unknown[]) => `搜索 "${String(args[0])}" 的结果`,
     noResultsFound: '未找到结果',
-    noResultsMessage: (query: string) => `没有找到与 "${query}" 匹配的 AI 工具。`,
+    noResultsMessage: (...args: unknown[]) => `没有找到与 "${String(args[0])}" 匹配的 AI 工具。`,
     enterKeyword: '输入关键词开始搜索',
     enterKeywordMessage: '在上方搜索框中输入 AI 工具名称或描述。',
-    resultsFound: (count: number) => `找到 ${count} 个结果`,
+    resultsFound: (...args: unknown[]) => `找到 ${Number(args[0])} 个结果`,
     
     // Sections
     hotTools: '🔥 热门工具',
     toolCategories: '📂 工具分类',
     
     // Category count
-    toolsCount: (count: number) => `${count} 个工具`,
+    toolsCount: (...args: unknown[]) => `${Number(args[0])} 个工具`,
     
     // Footer
     footerCopyright: '© 2026 AI 代码导航站. All rights reserved.',
@@ -57,19 +57,19 @@ export const translations: Record<Locale, Record<string, string | ((...args: unk
     
     // Search
     searchPlaceholder: 'Search AI tools...',
-    searchResultsFor: (query: string) => `Results for "${query}"`,
+    searchResultsFor: (...args: unknown[]) => `Results for "${String(args[0])}"`,
     noResultsFound: 'No results found',
-    noResultsMessage: (query: string) => `No AI tools matching "${query}".`,
+    noResultsMessage: (...args: unknown[]) => `No AI tools matching "${String(args[0])}".`,
     enterKeyword: 'Enter a keyword to search',
     enterKeywordMessage: 'Type an AI tool name or description in the search box above.',
-    resultsFound: (count: number) => `${count} results found`,
+    resultsFound: (...args: unknown[]) => `${Number(args[0])} results found`,
     
     // Sections
     hotTools: '🔥 Hot Tools',
     toolCategories: '📂 Categories',
     
     // Category count
-    toolsCount: (count: number) => `${count} tools`,
+    toolsCount: (...args: unknown[]) => `${Number(args[0])} tools`,
     
     // Footer
     footerCopyright: '© 2026 AI Code Navigator. All rights reserved.',
