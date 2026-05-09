@@ -147,11 +147,13 @@ async function fetchProductHunt(): Promise<ProductHuntProduct[]> {
 // GitHub Trending scraper
 // ---------------------------------------------------------------------------
 async function fetchGitHubTrending(): Promise<GitHubTrendingRepo[]> {
-  // Use the unofficial trending API endpoint
+  // Use the GitHub Search API with token for higher rate limits (5000 req/hr vs 60)
+  const token = process.env.GITHUB_TOKEN || '';
   const res = await fetch('https://api.github.com/search/repositories?q=language:python+created:>2026-01-01&sort=stars&order=desc&per_page=30', {
     headers: {
       'Accept': 'application/vnd.github.v3+json',
       'User-Agent': 'ai-code-nav-scraper/1.0',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
     },
   });
 
