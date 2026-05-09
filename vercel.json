@@ -13,5 +13,12 @@
       "path": "/api/cron/scrape",
       "schedule": "0 0 * * *"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "destination": "/",
+      "statusCode": 200
+    }
   ]
 }
