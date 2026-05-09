@@ -5,22 +5,9 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import I18nProvider from "@/components/I18nProvider";
 
-// Adsterra ad script (popunder + banner)
+// Adsterra ad script (popunder + banner) — Anti-Adblock JS Sync
 const AdScript = () => (
-  <script
-    dangerouslySetInnerHTML={{
-      __html: `
-        var AdBlock = window.AdBlock || [];
-        AdBlock.push({publisher:"YOUR_PUBLISHER_ID",placement:"0",advert:"0",type:"0",category:"0",country:"0",os:"0",browser:"0",screen:"0",lang:"0",device:"0"});
-        (function() {
-          var s = document.createElement('script');
-          s.src = 'https://ads.adsterra.com/ad?id=YOUR_PUBLISHER_ID';
-          s.async = true;
-          document.head.appendChild(s);
-        })();
-      `,
-    }}
-  />
+  <script src="https://armsbroodelusive.com/f2/3b/3e/f23b3efd5343b1c94b5bdb6f53baf2a.js" />
 );
 
 const geistSans = Geist({
