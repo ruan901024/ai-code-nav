@@ -33,6 +33,11 @@ export const translations: Record<Locale, Record<string, string | ((...args: unk
     trendingNow: '📈 当前热点',
     viewAllTrending: '查看所有热点 →',
     
+    // Recommended section
+    recommendedWebsites: '⭐ 推荐网站',
+    recommendedSubtitle: '精选优质 AI 资源与平台，由编辑团队亲自验证。',
+    viewAllRecommended: '查看全部推荐 →',
+    
     // Hot page
     hotPageTitle: 'AI 热点追踪',
     hotPageSubtitle: '来自 Hacker News、Product Hunt 和 GitHub Trending 的最新 AI 动态。',
@@ -83,6 +88,11 @@ export const translations: Record<Locale, Record<string, string | ((...args: unk
     toolCategories: '📂 Categories',
     trendingNow: '📈 Trending Now',
     viewAllTrending: 'View all trending →',
+    
+    // Recommended section
+    recommendedWebsites: '⭐ Recommended Websites',
+    recommendedSubtitle: 'Curated high-quality AI resources and platforms, personally verified by our team.',
+    viewAllRecommended: 'View all recommendations →',
     
     // Hot page
     hotPageTitle: 'AI Trending Tracker',

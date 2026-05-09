@@ -100,7 +100,7 @@ export interface DbTool {
   description: string;
   url: string;
   category: string;
-  source: 'github' | 'huggingface' | 'hackernews' | 'producthunt';
+  source: 'github' | 'huggingface' | 'hackernews' | 'producthunt' | 'curated';
   stars: number;
   forks: number;
   downloads: number;

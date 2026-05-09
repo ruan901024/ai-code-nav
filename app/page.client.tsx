@@ -19,9 +19,10 @@ interface HomePageClientProps {
   tools: DbTool[];
   categories: CategoryItem[];
   trendingTools?: DbTool[];
+  recommendedTools?: DbTool[];
 }
 
-export default function HomePageClient({ tools, categories, trendingTools }: HomePageClientProps) {
+export default function HomePageClient({ tools, categories, trendingTools, recommendedTools }: HomePageClientProps) {
   const { t } = useI18n();
 
   return (
@@ -41,6 +42,30 @@ export default function HomePageClient({ tools, categories, trendingTools }: Hom
           <SearchBar />
         </div>
       </section>
+
+      {/* Recommended Websites section — curated by editors */}
+      {recommendedTools && recommendedTools.length > 0 && (
+        <section className="mb-12" id="recommended">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-2xl">
+              {t('recommendedWebsites')}
+            </h2>
+            <Link href="/hot" className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400">
+              {t('viewAllRecommended')}
+            </Link>
+          </div>
+
+          <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-500">
+            {t('recommendedSubtitle')}
+          </p>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {recommendedTools.map((tool) => (
+              <ToolCard key={tool.id} tool={tool} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Trending section — embedded from hot page */}
       {trendingTools && trendingTools.length > 0 && (

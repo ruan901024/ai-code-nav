@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { toolDb, categoryDb } from "@/lib/db";
+import { seedCuratedWebsites } from "@/lib/seed-data";
 import HomePageClient from "./page.client";
 
 export const metadata: Metadata = {
@@ -17,6 +18,10 @@ interface CategoryItem {
 
 export default function HomePage() {
   // Server-side data fetching
+  
+  // Seed curated websites (idempotent)
+  seedCuratedWebsites();
+  
   const tools = toolDb.getAll(12, 0);
   const categoriesRaw = categoryDb.getAll();
   
@@ -29,5 +34,8 @@ export default function HomePage() {
   // Fetch trending tools (top by stars) for the embedded section
   const trendingTools = toolDb.getAll(8, 0);
 
-  return <HomePageClient tools={tools} categories={categories} trendingTools={trendingTools} />;
+  // Fetch curated/recommended tools
+  const recommendedTools = toolDb.getAll(12, 0).filter(t => t.source === 'curated');
+
+  return <HomePageClient tools={tools} categories={categories} trendingTools={trendingTools} recommendedTools={recommendedTools} />;
 }

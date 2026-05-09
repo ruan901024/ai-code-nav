@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
-import { scrapeAndStore } from '@/lib/github-scraper';
+import { scrapeAndStore as githubScrape } from '@/lib/github-scraper';
+import { scrapeAndStore as hotScrape } from '@/lib/hn-scraper';
+import { seedCuratedWebsites } from '@/lib/seed-data';
 
 /**
- * Cron job endpoint for periodic GitHub data scraping
+ * Cron job endpoint for periodic data scraping and seeding
  * Called by Vercel cron daily at midnight UTC
  */
 export async function GET(request: Request) {
@@ -15,15 +17,22 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Run the scraper
-    const result = await scrapeAndStore();
+    // 1. Seed curated websites (idempotent)
+    const seedResult = seedCuratedWebsites();
+
+    // 2. Run GitHub scraper
+    const githubResult = await githubScrape();
+
+    // 3. Run hot/trending scraper (HN, Product Hunt, GitHub Trending)
+    const hotResult = await hotScrape();
 
     return NextResponse.json({
       success: true,
-      message: `Scraped and stored ${result.inserted} tools (${result.skipped} duplicates skipped)`,
+      message: `Data updated successfully`,
       data: {
-        inserted: result.inserted,
-        skipped: result.skipped,
+        curated: seedResult,
+        github: { inserted: githubResult.inserted, skipped: githubResult.skipped },
+        hot: { inserted: hotResult.inserted, skipped: hotResult.skipped },
       },
     });
   } catch (error) {

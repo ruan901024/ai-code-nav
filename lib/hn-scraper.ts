@@ -332,3 +332,8 @@ export async function runScraper(): Promise<void> {
   const result = await scrapeAndStore();
   console.log('[Hot Scraper] Summary:', JSON.stringify(result));
 }
+
+// Auto-run when executed directly via `npx tsx lib/hn-scraper.ts`
+if (require.main === module) {
+  runScraper();
+}

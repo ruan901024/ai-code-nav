@@ -17,18 +17,46 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 };
 
 // ---------------------------------------------------------------------------
-// Search queries — tuned for Chinese AI ecosystem projects
+// Search queries — expanded coverage across all categories
 // ---------------------------------------------------------------------------
 const SEARCH_QUERIES: { query: string; categoryHint?: string }[] = [
+  // === LLM / Foundation Models ===
   { query: 'stars:>500 language:python "AI" lang:zh OR org:"BAAI"' },
   { query: 'stars:>300 language:python LLM' },
-  { query: 'stars:>200 language:python Agent' },
-  { query: 'stars:>200 language:python "Stable Diffusion" OR ComfyUI' },
-  { query: 'stars:>100 language:python LangChain' },
   { query: 'stars:>300 language:python ChatGLM OR Qwen OR Baichuan OR Yi- OR InternLM OR DeepSeek' },
-  { query: 'stars:>200 language:python "Video Generation" OR T2V OR SVD' },
+  // === Agent / Workflow ===
+  { query: 'stars:>200 language:python Agent' },
+  { query: 'stars:>100 language:python LangChain' },
+  { query: 'stars:>100 language:python CrewAI OR AutoGPT OR "multi-agent"' },
+  // === Image Generation ===
+  { query: 'stars:>200 language:python "Stable Diffusion" OR ComfyUI' },
   { query: 'stars:>200 language:python "Image Generation" OR SDXL OR ControlNet OR LoRA' },
+  // === Video Generation ===
+  { query: 'stars:>200 language:python "Video Generation" OR T2V OR SVD' },
+  // === Code Assist ===
+  { query: 'stars:>100 language:typescript "code completion" OR copilot OR cursor' },
+  { query: 'stars:>100 language:javascript AI code assist' },
+  // === Data Visualization ===
+  { query: 'stars:>200 language:python "data visualization" OR dashboard OR plotly OR streamlit' },
+  // === Audio Generation ===
+  { query: 'stars:>100 language:python TTS OR Whisper OR MusicGen OR "audio generation"' },
+  // === Search / RAG ===
+  { query: 'stars:>100 language:python RAG OR Retrieval OR Embedding' },
+  // === JavaScript/TypeScript AI ecosystem ===
   { query: 'stars:>100 language:javascript AI' },
+  { query: 'stars:>100 language:typescript AI' },
+  // === Rust AI / ML ===
+  { query: 'stars:>200 language:rust "machine learning" OR LLM OR inference' },
+  { query: 'stars:>100 language:rust AI OR transformer OR tokenization' },
+  // === DevOps / MLOps ===
+  { query: 'stars:>200 language:python "MLOps" OR model-serving OR vLLM OR triton' },
+  { query: 'stars:>100 language:python CI-CD OR deployment OR monitoring AI' },
+  // === Web3 + AI ===
+  { query: 'stars:>100 language:javascript "Web3" AND AI OR "decentralized" AI' },
+  { query: 'stars:>100 language:typescript blockchain AI OR "smart contract" AI' },
+  // === Python Dev Tools ===
+  { query: 'stars:>200 language:python CLI OR developer-tools OR scaffolding' },
+  { query: 'stars:>100 language:python testing OR linting OR formatting' },
 ];
 
 // ---------------------------------------------------------------------------
