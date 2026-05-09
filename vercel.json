@@ -1,24 +1,12 @@
 {
   "name": "ai-code-nav",
   "framework": "nextjs",
-  "regions": ["sin"],
-  "builds": [
-    {
-      "src": "*.next",
-      "use": "@vercel/next"
-    }
-  ],
-  "crons": [
-    {
-      "path": "/api/cron/scrape",
-      "schedule": "0 0 * * *"
-    }
-  ],
+  "trailingSlash": false,
   "redirects": [
     {
       "source": "/:path*",
       "destination": "/",
-      "statusCode": 200
+      "permanent": false
     }
   ]
 }
