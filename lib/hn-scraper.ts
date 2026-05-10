@@ -172,6 +172,7 @@ function mapHNToDbPost(item: HNItem): Omit<DbPost, 'publishedAt' | 'fetchedAt'> 
     source: 'hackernews',
     score: item.score,
     comments: item.descendants ?? 0,
+    content: '', // Will be filled by AI summarizer
   };
 }
 
@@ -183,6 +184,7 @@ function mapProductHuntToDbPost(product: ProductHuntProduct): Omit<DbPost, 'publ
     source: 'producthunt',
     score: product.votes_count,
     comments: product.comments_count ?? 0,
+    content: '', // Will be filled by AI summarizer
   };
 }
 

@@ -82,9 +82,9 @@ export default function HotPageClient({ posts, tools }: HotPageClientProps) {
         </button>
       </section>
 
-      {/* Posts list — single column for readability */}
+      {/* Posts list — grid layout for better space usage */}
       <section className="mb-12">
-        <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredPosts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}

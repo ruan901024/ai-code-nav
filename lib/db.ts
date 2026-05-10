@@ -59,6 +59,7 @@ export function getDb(): DB {
         source TEXT DEFAULT 'hackernews',
         score INTEGER DEFAULT 0,
         comments INTEGER DEFAULT 0,
+        content TEXT DEFAULT '',
         published_at TEXT DEFAULT (datetime('now')),
         fetched_at TEXT DEFAULT (datetime('now'))
       );
@@ -256,6 +257,7 @@ export interface DbPost {
   source: 'hackernews' | 'producthunt' | 'arxiv' | 'reddit';
   score: number;
   comments: number;
+  content: string;
   publishedAt: string;
   fetchedAt: string;
 }
@@ -272,6 +274,7 @@ export const postDb = {
       source: row.source || 'hackernews',
       score: row.score,
       comments: row.comments ?? 0,
+      content: row.content || '',
       publishedAt: row.published_at,
       fetchedAt: row.fetched_at,
     })) as DbPost[];
@@ -288,6 +291,7 @@ export const postDb = {
       source: row.source || 'hackernews',
       score: row.score,
       comments: row.comments ?? 0,
+      content: row.content || '',
       publishedAt: row.published_at,
       fetchedAt: row.fetched_at,
     })) as DbPost[];
@@ -296,8 +300,8 @@ export const postDb = {
   upsert(post: Omit<DbPost, 'publishedAt' | 'fetchedAt'>): void {
     const stmt = getDb().prepare(`
       INSERT OR REPLACE INTO posts 
-      (id, title, url, source, score, comments)
-      VALUES (?, ?, ?, ?, ?, ?)
+      (id, title, url, source, score, comments, content)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
     stmt.run(
       post.id,
@@ -305,7 +309,8 @@ export const postDb = {
       post.url,
       post.source || 'hackernews',
       post.score,
-      post.comments ?? 0
+      post.comments ?? 0,
+      post.content || ''
     );
   },
 

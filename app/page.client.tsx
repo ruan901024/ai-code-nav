@@ -80,7 +80,7 @@ export default function HomePageClient({ tools, categories, trendingPosts, recom
             </Link>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {trendingPosts.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}
