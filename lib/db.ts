@@ -84,6 +84,9 @@ export function getDb(): DB {
     migrate(`ALTER TABLE tools ADD COLUMN downloads INTEGER DEFAULT 0`);
     migrate(`ALTER TABLE tools ADD COLUMN likes INTEGER DEFAULT 0`);
 
+    // Migration: add content column to posts if it doesn't exist
+    migrate(`ALTER TABLE posts ADD COLUMN content TEXT DEFAULT ''`);
+
     // Seed default categories if empty
     const count = db.prepare('SELECT COUNT(*) as count FROM categories').get();
     if ((count as { count: number }).count === 0) {
