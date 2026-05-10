@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { toolDb, categoryDb } from "@/lib/db";
+import { toolDb, categoryDb, postDb } from "@/lib/db";
 import { seedCuratedWebsites } from "@/lib/seed-data";
 import HomePageClient from "./page.client";
 
@@ -31,11 +31,11 @@ export default function HomePage() {
     toolCount: toolDb.countByCategory(cat.id),
   }));
 
-  // Fetch trending tools (top by stars) for the embedded section
-  const trendingTools = toolDb.getAll(8, 0);
+  // Fetch trending posts (HN + PH) for the embedded section
+  const trendingPosts = postDb.getAll(8, 0);
 
   // Fetch curated/recommended tools
   const recommendedTools = toolDb.getAll(12, 0).filter(t => t.source === 'curated');
 
-  return <HomePageClient tools={tools} categories={categories} trendingTools={trendingTools} recommendedTools={recommendedTools} />;
+  return <HomePageClient tools={tools} categories={categories} trendingPosts={trendingPosts} recommendedTools={recommendedTools} />;
 }

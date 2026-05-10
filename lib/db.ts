@@ -52,10 +52,23 @@ export function getDb(): DB {
         icon TEXT DEFAULT ''
       );
 
+      CREATE TABLE IF NOT EXISTS posts (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        url TEXT NOT NULL,
+        source TEXT DEFAULT 'hackernews',
+        score INTEGER DEFAULT 0,
+        comments INTEGER DEFAULT 0,
+        published_at TEXT DEFAULT (datetime('now')),
+        fetched_at TEXT DEFAULT (datetime('now'))
+      );
+
       CREATE INDEX IF NOT EXISTS idx_tools_category ON tools(category);
       CREATE INDEX IF NOT EXISTS idx_tools_stars ON tools(stars DESC);
       CREATE INDEX IF NOT EXISTS idx_tools_name ON tools(name);
       CREATE INDEX IF NOT EXISTS idx_tools_source ON tools(source);
+      CREATE INDEX IF NOT EXISTS idx_posts_score ON posts(score DESC);
+      CREATE INDEX IF NOT EXISTS idx_posts_fetched_at ON posts(fetched_at DESC);
     `);
 
     // Migration: add new columns if they don't exist (for existing databases)
@@ -232,5 +245,72 @@ export const categoryDb = {
 
   getByCategory(categoryId: string): DbCategory | undefined {
     return getDb().prepare('SELECT * FROM categories WHERE id = ?').get(categoryId) as DbCategory | undefined;
+  },
+};
+
+// Post interface and CRUD operations
+export interface DbPost {
+  id: string;
+  title: string;
+  url: string;
+  source: 'hackernews' | 'producthunt' | 'arxiv' | 'reddit';
+  score: number;
+  comments: number;
+  publishedAt: string;
+  fetchedAt: string;
+}
+
+export const postDb = {
+  getAll(limit = 50, offset = 0): DbPost[] {
+    const stmt = getDb().prepare(
+      'SELECT * FROM posts ORDER BY score DESC LIMIT ? OFFSET ?'
+    );
+    return stmt.all(limit, offset).map(row => ({
+      id: row.id,
+      title: row.title,
+      url: row.url,
+      source: row.source || 'hackernews',
+      score: row.score,
+      comments: row.comments ?? 0,
+      publishedAt: row.published_at,
+      fetchedAt: row.fetched_at,
+    })) as DbPost[];
+  },
+
+  getBySource(source: string, limit = 50): DbPost[] {
+    const stmt = getDb().prepare(
+      'SELECT * FROM posts WHERE source = ? ORDER BY score DESC LIMIT ?'
+    );
+    return stmt.all(source, limit).map(row => ({
+      id: row.id,
+      title: row.title,
+      url: row.url,
+      source: row.source || 'hackernews',
+      score: row.score,
+      comments: row.comments ?? 0,
+      publishedAt: row.published_at,
+      fetchedAt: row.fetched_at,
+    })) as DbPost[];
+  },
+
+  upsert(post: Omit<DbPost, 'publishedAt' | 'fetchedAt'>): void {
+    const stmt = getDb().prepare(`
+      INSERT OR REPLACE INTO posts 
+      (id, title, url, source, score, comments)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `);
+    stmt.run(
+      post.id,
+      post.title,
+      post.url,
+      post.source || 'hackernews',
+      post.score,
+      post.comments ?? 0
+    );
+  },
+
+  count(): number {
+    const result = getDb().prepare('SELECT COUNT(*) as count FROM posts').get();
+    return (result as { count: number }).count;
   },
 };

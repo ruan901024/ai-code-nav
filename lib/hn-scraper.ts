@@ -1,5 +1,5 @@
 // Hot/Trending Scraper — fetches trending AI items from Hacker News, Product Hunt, and GitHub Trending.
-import { toolDb, DbTool } from './db';
+import { postDb, DbPost, toolDb, DbTool } from './db';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -33,31 +33,6 @@ interface GitHubTrendingRepo {
   stargazers_count: number | null;
   forks_count: number | null;
   language: string | null;
-}
-
-// ---------------------------------------------------------------------------
-// Category mapping for hot items
-// ---------------------------------------------------------------------------
-const CATEGORY_KEYWORDS: Record<string, string[]> = {
-  'agent': ['Agent', 'agent', 'LangChain', 'langchain', 'AutoGPT', 'CrewAI'],
-  'video-gen': ['Video', 'video', 'Stable Video', 'SVD', 'ModelScope', 'T2V'],
-  'code-assist': ['Code', 'code', 'Coder', 'codex', 'TabNine', 'Cursor'],
-  'image-gen': ['Image', 'image', 'Stable Diffusion', 'SDXL', 'ControlNet', 'LoRA', 'ComfyUI'],
-  'llm': ['LLM', 'llm', 'GPT', 'ChatGLM', 'Qwen', 'Baichuan', 'Yi-', 'InternLM', 'DeepSeek'],
-  'data-viz': ['Data', 'data', 'Visualization', 'viz', 'Dashboard'],
-  'audio-gen': ['Audio', 'audio', 'TTS', 'Speech', 'Whisper', 'MusicGen'],
-  'workflow': ['Workflow', 'workflow', 'Pipeline', 'pipeline', 'Automation'],
-  'search': ['Search', 'search', 'RAG', 'Retrieval', 'Embedding'],
-};
-
-function detectCategory(text: string): string {
-  const lower = text.toLowerCase();
-  for (const [catId, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
-    if (keywords.some((kw) => lower.includes(kw.toLowerCase()))) {
-      return catId;
-    }
-  }
-  return 'other';
 }
 
 // ---------------------------------------------------------------------------
@@ -130,17 +105,40 @@ async function fetchHNTrending(): Promise<HNItem[]> {
 // Product Hunt scraper
 // ---------------------------------------------------------------------------
 async function fetchProductHunt(): Promise<ProductHuntProduct[]> {
-  const res = await fetch('https://api.producthunt.com/v2/api/products?filter[launch_date]=2026-05-09&sort=votes_count&per_page=30', {
-    headers: {
-      'Accept': 'application/json',
-      'User-Agent': 'ai-code-nav-scraper/1.0',
-    },
-  });
+  // Try v2 API first, fallback to web scraping if needed
+  try {
+    const res = await fetch('https://api.producthunt.com/v2/api/products?filter[launch_date]=today&sort=votes_count&per_page=30', {
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'ai-code-nav-scraper/1.0',
+      },
+    });
 
-  if (!res.ok) throw new Error(`Product Hunt API error: ${res.status}`);
+    if (!res.ok) throw new Error(`Product Hunt API error: ${res.status}`);
 
-  const body = await res.json();
-  return (body.data || []) as ProductHuntProduct[];
+    const body = await res.json();
+    return (body.data || []) as ProductHuntProduct[];
+  } catch (err) {
+    console.warn('[Hot Scraper] PH v2 API failed, trying alternative:', err);
+    
+    // Fallback: try the top products endpoint without date filter
+    try {
+      const res = await fetch('https://api.producthunt.com/v2/api/products?sort=votes_count&per_page=30', {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'ai-code-nav-scraper/1.0',
+        },
+      });
+
+      if (!res.ok) throw new Error(`Product Hunt API error: ${res.status}`);
+
+      const body = await res.json();
+      return (body.data || []) as ProductHuntProduct[];
+    } catch (err2) {
+      console.warn('[Hot Scraper] PH fallback also failed:', err2);
+      return [];
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -164,57 +162,37 @@ async function fetchGitHubTrending(): Promise<GitHubTrendingRepo[]> {
 }
 
 // ---------------------------------------------------------------------------
-// Map to DbTool format
+// Map to DbPost format
 // ---------------------------------------------------------------------------
-function mapHNToDbTool(item: HNItem, source: 'hackernews' | 'producthunt'): Omit<DbTool, 'createdAt' | 'updatedAt'> {
-  const category = detectCategory(item.title);
-  
+function mapHNToDbPost(item: HNItem): Omit<DbPost, 'publishedAt' | 'fetchedAt'> {
   return {
-    id: `${source}-${item.id}`,
-    name: item.title,
-    description: '', // HN doesn't have descriptions
+    id: `hn-${item.id}`,
+    title: item.title,
     url: item.url || `https://news.ycombinator.com/item?id=${item.id}`,
-    category,
-    source,
-    stars: item.score,
-    forks: 0,
-    downloads: 0,
-    likes: item.descendants || 0,
-    language: null,
-    tags: [],
-    isPremium: false,
+    source: 'hackernews',
+    score: item.score,
+    comments: item.descendants ?? 0,
   };
 }
 
-function mapProductHuntToDbTool(product: ProductHuntProduct): Omit<DbTool, 'createdAt' | 'updatedAt'> {
-  const category = detectCategory(`${product.name} ${product.tagline}`);
-  
+function mapProductHuntToDbPost(product: ProductHuntProduct): Omit<DbPost, 'publishedAt' | 'fetchedAt'> {
   return {
     id: `ph-${product.id}`,
-    name: product.name,
-    description: product.description || product.tagline,
+    title: product.name,
     url: product.redirect_url || product.website_url || `https://www.producthunt.com/posts/${product.name.toLowerCase().replace(/\s+/g, '-')}`,
-    category,
     source: 'producthunt',
-    stars: product.votes_count,
-    forks: 0,
-    downloads: 0,
-    likes: product.comments_count || 0,
-    language: null,
-    tags: [],
-    isPremium: false,
+    score: product.votes_count,
+    comments: product.comments_count ?? 0,
   };
 }
 
 function mapGitHubTrendingToDbTool(repo: GitHubTrendingRepo): Omit<DbTool, 'createdAt' | 'updatedAt'> {
-  const category = detectCategory(`${repo.name} ${repo.description || ''}`);
-  
   return {
     id: `gh-trending-${repo.full_name.replace('/', '-')}`,
     name: repo.name,
     description: repo.description || '',
     url: repo.html_url,
-    category,
+    category: detectCategory(`${repo.name} ${repo.description || ''}`),
     source: 'github',
     stars: repo.stargazers_count ?? 0,
     forks: repo.forks_count ?? 0,
@@ -224,6 +202,31 @@ function mapGitHubTrendingToDbTool(repo: GitHubTrendingRepo): Omit<DbTool, 'crea
     tags: [],
     isPremium: false,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Category mapping for tools (GitHub repos only)
+// ---------------------------------------------------------------------------
+const CATEGORY_KEYWORDS: Record<string, string[]> = {
+  'agent': ['Agent', 'agent', 'LangChain', 'langchain', 'AutoGPT', 'CrewAI'],
+  'video-gen': ['Video', 'video', 'Stable Video', 'SVD', 'ModelScope', 'T2V'],
+  'code-assist': ['Code', 'code', 'Coder', 'codex', 'TabNine', 'Cursor'],
+  'image-gen': ['Image', 'image', 'Stable Diffusion', 'SDXL', 'ControlNet', 'LoRA', 'ComfyUI'],
+  'llm': ['LLM', 'llm', 'GPT', 'ChatGLM', 'Qwen', 'Baichuan', 'Yi-', 'InternLM', 'DeepSeek'],
+  'data-viz': ['Data', 'data', 'Visualization', 'viz', 'Dashboard'],
+  'audio-gen': ['Audio', 'audio', 'TTS', 'Speech', 'Whisper', 'MusicGen'],
+  'workflow': ['Workflow', 'workflow', 'Pipeline', 'pipeline', 'Automation'],
+  'search': ['Search', 'search', 'RAG', 'Retrieval', 'Embedding'],
+};
+
+function detectCategory(text: string): string {
+  const lower = text.toLowerCase();
+  for (const [catId, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+    if (keywords.some((kw) => lower.includes(kw.toLowerCase()))) {
+      return catId;
+    }
+  }
+  return 'other';
 }
 
 // ---------------------------------------------------------------------------
@@ -237,7 +240,7 @@ export async function scrapeAndStore(): Promise<{ inserted: number; skipped: num
 
   console.log('[Hot Scraper] Starting…');
 
-  // 1. Hacker News top stories
+  // 1. Hacker News top stories → posts table
   try {
     const hnItems = await fetchHNTopStories();
     console.log(`[Hot Scraper] HN Top Stories → ${hnItems.length} results`);
@@ -249,8 +252,8 @@ export async function scrapeAndStore(): Promise<{ inserted: number; skipped: num
       }
       seenIds.add(item.id.toString());
 
-      const tool = mapHNToDbTool(item, 'hackernews');
-      toolDb.upsert(tool);
+      const post = mapHNToDbPost(item);
+      postDb.upsert(post);
       inserted++;
     }
 
@@ -259,7 +262,7 @@ export async function scrapeAndStore(): Promise<{ inserted: number; skipped: num
     console.error('[Hot Scraper] HN Top Stories error:', err);
   }
 
-  // 2. Hacker News trending (newest)
+  // 2. Hacker News trending (newest) → posts table
   try {
     const hnTrending = await fetchHNTrending();
     console.log(`[Hot Scraper] HN Trending → ${hnTrending.length} results`);
@@ -271,8 +274,8 @@ export async function scrapeAndStore(): Promise<{ inserted: number; skipped: num
       }
       seenIds.add(item.id.toString());
 
-      const tool = mapHNToDbTool(item, 'hackernews');
-      toolDb.upsert(tool);
+      const post = mapHNToDbPost(item);
+      postDb.upsert(post);
       inserted++;
     }
 
@@ -281,7 +284,7 @@ export async function scrapeAndStore(): Promise<{ inserted: number; skipped: num
     console.error('[Hot Scraper] HN Trending error:', err);
   }
 
-  // 3. Product Hunt
+  // 3. Product Hunt → posts table
   try {
     const phProducts = await fetchProductHunt();
     console.log(`[Hot Scraper] Product Hunt → ${phProducts.length} results`);
@@ -293,8 +296,8 @@ export async function scrapeAndStore(): Promise<{ inserted: number; skipped: num
       }
       seenIds.add(product.id.toString());
 
-      const tool = mapProductHuntToDbTool(product);
-      toolDb.upsert(tool);
+      const post = mapProductHuntToDbPost(product);
+      postDb.upsert(post);
       inserted++;
     }
 
@@ -303,7 +306,7 @@ export async function scrapeAndStore(): Promise<{ inserted: number; skipped: num
     console.error('[Hot Scraper] Product Hunt error:', err);
   }
 
-  // 4. GitHub Trending
+  // 4. GitHub Trending → tools table (repos are tools, not posts)
   try {
     const ghTrending = await fetchGitHubTrending();
     console.log(`[Hot Scraper] GitHub Trending → ${ghTrending.length} results`);
@@ -315,6 +318,7 @@ export async function scrapeAndStore(): Promise<{ inserted: number; skipped: num
       }
       seenIds.add(repo.full_name);
 
+      // Keep GitHub repos as tools — they're actual code repositories
       const tool = mapGitHubTrendingToDbTool(repo);
       toolDb.upsert(tool);
       inserted++;
@@ -323,7 +327,7 @@ export async function scrapeAndStore(): Promise<{ inserted: number; skipped: num
     console.error('[Hot Scraper] GitHub Trending error:', err);
   }
 
-  console.log(`[Hot Scraper] Done — ${inserted} tools inserted/updated, ${skipped} duplicates skipped.`);
+  console.log(`[Hot Scraper] Done — ${inserted} items inserted/updated, ${skipped} duplicates skipped.`);
   return { inserted, skipped };
 }
 

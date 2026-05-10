@@ -3,8 +3,9 @@
 import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
 import ToolCard from "@/components/ToolCard";
+import PostCard from "@/components/PostCard";
 import CategoryGrid from "@/components/CategoryGrid";
-import type { DbTool } from "@/lib/db";
+import type { DbTool, DbPost } from "@/lib/db";
 import { useI18n } from "@/components/I18nProvider";
 
 interface CategoryItem {
@@ -18,11 +19,11 @@ interface CategoryItem {
 interface HomePageClientProps {
   tools: DbTool[];
   categories: CategoryItem[];
-  trendingTools?: DbTool[];
+  trendingPosts?: DbPost[];
   recommendedTools?: DbTool[];
 }
 
-export default function HomePageClient({ tools, categories, trendingTools, recommendedTools }: HomePageClientProps) {
+export default function HomePageClient({ tools, categories, trendingPosts, recommendedTools }: HomePageClientProps) {
   const { t } = useI18n();
 
   return (
@@ -68,7 +69,7 @@ export default function HomePageClient({ tools, categories, trendingTools, recom
       )}
 
       {/* Trending section — embedded from hot page */}
-      {trendingTools && trendingTools.length > 0 && (
+      {trendingPosts && trendingPosts.length > 0 && (
         <section className="mb-12" id="trending">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-2xl">
@@ -79,9 +80,9 @@ export default function HomePageClient({ tools, categories, trendingTools, recom
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {trendingTools.map((tool) => (
-              <ToolCard key={tool.id} tool={tool} />
+          <div className="flex flex-col gap-3">
+            {trendingPosts.map((post) => (
+              <PostCard key={post.id} post={post} />
             ))}
           </div>
         </section>

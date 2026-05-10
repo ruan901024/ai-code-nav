@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { toolDb } from "@/lib/db";
+import { postDb, toolDb } from "@/lib/db";
 import HotPageClient from "./page.client";
 
 export const metadata: Metadata = {
@@ -8,8 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function HotPage() {
-  // Server-side data fetching — get all tools sorted by stars (score) descending
+  // Server-side data fetching — get posts and tools separately
+  const posts = postDb.getAll(100, 0);
   const tools = toolDb.getAll(50, 0);
 
-  return <HotPageClient tools={tools} />;
+  return <HotPageClient posts={posts} tools={tools} />;
 }

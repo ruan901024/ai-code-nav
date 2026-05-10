@@ -1,22 +1,24 @@
 "use client";
 
 import { useState } from "react";
+import PostCard from "@/components/PostCard";
 import ToolCard from "@/components/ToolCard";
-import type { DbTool } from "@/lib/db";
+import type { DbPost, DbTool } from "@/lib/db";
 import { useI18n } from "@/components/I18nProvider";
 
 interface HotPageClientProps {
+  posts: DbPost[];
   tools: DbTool[];
 }
 
-export default function HotPageClient({ tools }: HotPageClientProps) {
+export default function HotPageClient({ posts, tools }: HotPageClientProps) {
   const { t } = useI18n();
   const [sourceFilter, setSourceFilter] = useState<string>('all');
 
-  // Filter tools by source
-  const filteredTools = sourceFilter === 'all' 
-    ? tools 
-    : tools.filter(tool => tool.source === sourceFilter);
+  // Filter posts by source
+  const filteredPosts = sourceFilter === 'all' 
+    ? posts 
+    : posts.filter(post => post.source === sourceFilter);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
@@ -47,17 +49,6 @@ export default function HotPageClient({ tools }: HotPageClientProps) {
         </button>
 
         <button
-          onClick={() => setSourceFilter('github')}
-          className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
-            sourceFilter === 'github'
-              ? 'bg-blue-500 text-white shadow-sm'
-              : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700'
-          }`}
-        >
-          {t('githubTrending')}
-        </button>
-
-        <button
           onClick={() => setSourceFilter('hackernews')}
           className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
             sourceFilter === 'hackernews'
@@ -80,27 +71,27 @@ export default function HotPageClient({ tools }: HotPageClientProps) {
         </button>
 
         <button
-          onClick={() => setSourceFilter('huggingface')}
+          onClick={() => setSourceFilter('github')}
           className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
-            sourceFilter === 'huggingface'
+            sourceFilter === 'github'
               ? 'bg-blue-500 text-white shadow-sm'
               : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700'
           }`}
         >
-          {t('huggingface')}
+          {t('githubTrending')}
         </button>
       </section>
 
-      {/* Tools grid */}
+      {/* Posts list — single column for readability */}
       <section className="mb-12">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredTools.map((tool) => (
-            <ToolCard key={tool.id} tool={tool} />
+        <div className="flex flex-col gap-3">
+          {filteredPosts.map((post) => (
+            <PostCard key={post.id} post={post} />
           ))}
         </div>
 
         {/* Empty state */}
-        {filteredTools.length === 0 && (
+        {filteredPosts.length === 0 && (
           <div className="flex flex-col items-center gap-4 py-12 text-center">
             <span className="text-4xl">🔍</span>
             <p className="text-base font-medium text-zinc-700 dark:text-zinc-300">{t('noResultsFound')}</p>
@@ -110,10 +101,27 @@ export default function HotPageClient({ tools }: HotPageClientProps) {
       </section>
 
       {/* Stats */}
-      {filteredTools.length > 0 && (
+      {filteredPosts.length > 0 && (
         <section className="flex items-center justify-center gap-4 py-6 text-sm text-zinc-500 dark:text-zinc-400">
-          <span>{t('resultsFound', { value: filteredTools.length })}</span>
+          <span>{t('resultsFound', { value: filteredPosts.length })}</span>
         </section>
+      )}
+
+      {/* GitHub Trending repos section — always shown at bottom */}
+      {tools.length > 0 && (
+        <>
+          <div className="my-8 border-t border-zinc-200 dark:border-zinc-700" />
+          <section>
+            <h2 className="mb-4 text-xl font-bold text-zinc-900 dark:text-zinc-50">
+              {t('githubTrending')} Repositories
+            </h2>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {tools.map((tool) => (
+                <ToolCard key={tool.id} tool={tool} />
+              ))}
+            </div>
+          </section>
+        </>
       )}
     </div>
   );
