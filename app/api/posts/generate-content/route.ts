@@ -115,7 +115,7 @@ async function generateSummary(title: string, context: string): Promise<string> 
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
+        model: process.env.OPENAI_MODEL || 'minimax-m2.5-free',
         messages: [
           {
             role: 'system',
