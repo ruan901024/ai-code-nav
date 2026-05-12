@@ -70,7 +70,7 @@ async function generateSummary(title: string, context: string): Promise<string> 
     }
     
     // Fallback: use the last paragraph of reasoning_content
-    const paragraphs = rc.split('\n\n').filter(p => p.trim());
+    const paragraphs = rc.split('\n\n').filter((p: string) => p.trim());
     for (const p of paragraphs.reverse()) {
       if (p.length > 20 && !p.startsWith('Here') && !p.includes('**')) {
         return p.slice(0, 200);
