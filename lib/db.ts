@@ -268,7 +268,7 @@ export interface DbPost {
 export const postDb = {
   getAll(limit = 50, offset = 0): DbPost[] {
     const stmt = getDb().prepare(
-      'SELECT * FROM posts ORDER BY score DESC LIMIT ? OFFSET ?'
+      'SELECT * FROM posts WHERE id != \"moma-platform-2026\" ORDER BY score DESC LIMIT ? OFFSET ?'
     );
     return stmt.all(limit, offset).map(row => ({
       id: row.id,
